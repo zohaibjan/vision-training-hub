@@ -1,19 +1,3 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vision Training Hub</title><link rel="stylesheet" href="style.css"></head>
-<body>
-<header><a class="brand" href="/">V<span>▧</span>H <b>Vision Training Hub</b></a><span class="tag">YOLOv8 · MLflow</span></header>
-<main>
-<section class="intro"><div><p class="eyebrow">COMPUTER VISION / TRAINING OPERATIONS</p><h1>From labelled data<br>to your next model.</h1><p class="muted">Submit an experiment. We’ll find a GPU and take it from there.</p></div><div class="connection"><label for="token">Portal access token</label><div class="inline"><input type="password" id="token" autocomplete="off" placeholder="Enter your configured token"><button id="connect">Connect</button></div><p class="muted small">Held in this tab’s memory only.</p></div></section>
-<p id="notice" role="status" aria-live="polite">Connect to see your training workspace.</p>
-<section class="stats" aria-label="Workspace summary"><article><span>QUEUED</span><strong id="queued">—</strong></article><article><span>TRAINING</span><strong id="running">—</strong></article><article><span>COMPLETED</span><strong id="completed">—</strong></article><article><span>WORKER</span><strong class="worker" id="worker">Offline</strong></article></section>
-<div class="layout"><aside><section class="panel"><p class="eyebrow">NEW EXPERIMENT</p><h2>Set up training</h2><form id="submit">
-<label>Experiment name<input name="name" required maxlength="100" value="YOLOv8 baseline"></label>
-<label>Dataset folder<select name="dataset" id="dataset" required><option value="">Connect to load datasets</option></select></label><p class="small muted" id="root">Folders on the training server containing data.yaml.</p>
-<label>Base model<select name="model"><option>yolov8n.pt</option><option>yolov8s.pt</option><option>yolov8m.pt</option><option>yolov8l.pt</option><option>yolov8x.pt</option></select></label>
-<div class="pair"><label>Epochs<input name="epochs" type="number" min="1" max="1000" value="50" required></label><label>Batch size<input name="batch" type="number" min="1" max="256" value="8" required></label></div>
-<div class="pair"><label>Image size<input name="imgsz" type="number" min="32" max="2048" step="32" value="640" required></label><label>Seed<input name="seed" type="number" min="0" max="2147483647" value="42" required></label></div>
-<button class="primary" type="submit">Queue training job ↗</button><p class="small muted">One job per GPU. Busy devices keep your job in the queue.</p></form></section><section class="panel"><h2>GPU pool</h2><div id="gpus" class="muted">No telemetry yet.</div></section></aside>
-<section class="panel jobs"><div class="section-title"><div><p class="eyebrow">EXPERIMENTS</p><h2>Training jobs</h2></div><select id="filter" aria-label="Filter jobs"><option value="all">All jobs</option><option>queued</option><option>running</option><option>completed</option><option>failed</option><option>cancelled</option><option>interrupted</option></select></div><div id="jobs"><div class="empty">Your experiments will appear here.<br><span class="muted">Choose a labelled dataset to get started.</span></div></div></section></div>
-<section class="panel" id="detail" hidden><div class="section-title"><h2 id="detail-title">Job details</h2><button id="close">Close</button></div><p id="detail-meta" class="muted"></p><div id="metrics" class="metrics"></div><div id="artifacts"></div><h3>Training log</h3><pre id="logs"></pre></section>
-<footer>Vision Training Hub · Independent reference implementation · Single-host GPU orchestration</footer>
-</main><script src="app.js"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#345c45"><title>Vision Training Hub</title>  <script type="module" crossorigin src="./assets/index-UjITraaE.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CiKh7KD9.css">
+</head><body><div id="root"></div></body></html>

@@ -1,5 +1,7 @@
 # Hardware acceptance
 
+Automated checks: 38 Python tests and 13 React tests, plus a Vite production build. Frontend tests use a mocked transport; Python integration tests run actual simulation subprocesses. Public preview browser checks cover rendering, filtering and log details. These checks do not substitute for a live CUDA/MLflow training run.
+
 The automated suite validates control-plane behavior and a simulated subprocess runner. Before claiming a GPU deployment is validated:
 
 1. Install matching NVIDIA drivers/PyTorch and record Python, torch, CUDA, ultralytics and mlflow versions (`pip freeze` plus `nvidia-smi`).

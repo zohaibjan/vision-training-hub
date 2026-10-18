@@ -1,8 +1,14 @@
 # Vision Training Hub
 
-A web portal for training **Ultralytics YOLOv8 detection models** on labelled image datasets. Submit a job, let the scheduler assign an available NVIDIA GPU, and inspect progress, logs, model weights and MLflow experiments from one workflow.
+A **React + FastAPI** web portal for training **Ultralytics YOLOv8 detection models** on labelled image datasets. Submit a job, let the scheduler assign an available NVIDIA GPU, and inspect progress, logs, model weights and MLflow experiments from one workflow.
 
 Built by [Dr. Muhammad Zohaib Jan](https://zohaibjan.github.io/). This is a new, independent reference implementation of a training-platform concept described by the author. It contains no employer or client code or data and makes no claims about historical deployment results.
+
+[Open the read-only portal preview](https://zohaibjan.github.io/vision-training-hub-demo/?preview=1)
+
+![React training portal showing labelled sample jobs](docs/portal-preview.jpg)
+
+*Screenshot of the actual React interface in read-only preview mode. The displayed jobs and GPUs are sample states, not training results.*
 
 ## What it does
 
@@ -38,6 +44,21 @@ uvicorn hub.api:create_app --factory --host 127.0.0.1 --port 8000
 ```
 
 Open **http://127.0.0.1:8000**, enter your token, select `synthetic-boxes`, and submit a short experiment. Simulation exposes two virtual GPUs, exercises the real queue and subprocess lifecycle, and creates **no trained weights, MLflow runs or invented accuracy metrics**. Closing the browser does not stop the worker.
+
+## React frontend development
+
+The frontend source is in `frontend/src/`, with React 19 and a Vite build. FastAPI serves the committed production build in `hub/static/`; a fresh clone runs without Node. Node 22+ is required only for frontend development/rebuilding.
+
+```bash
+cd frontend
+npm ci
+npm test
+npm run build
+```
+
+The build replaces `hub/static/`. Commit the source, lockfile and matching build together. For development, run `npm run dev` with FastAPI on port 8000; Vite proxies `/api` to FastAPI. The frontend keeps the bearer token in memory, aborts stale requests on disconnect/unmount, and polls jobs without overlapping requests.
+
+The public preview uses this same React build with `?preview=1`. It performs no API calls and disables training/cancellation. Actual training requires the local FastAPI service, worker and NVIDIA host.
 
 ## Real GPU training
 
@@ -130,10 +151,12 @@ flowchart TD
 ```bash
 pip install -e '.[dev]'
 pytest -q
-node --check hub/static/app.js
+npm ci --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
 ```
 
-Tests cover authenticated APIs, label/path validation, atomic claims, busy GPU queuing, multiple simulated GPUs, real subprocess completion/cancellation, dataset changes, restart state, artifact access and the MLflow adapter contract. No GPU is needed for these tests. **Real NVIDIA training and end-to-end Ultralytics/MLflow metrics require hardware acceptance testing**; adapter tests use fakes and are not evidence of model accuracy or throughput. See [the acceptance checklist](docs/acceptance.md).
+The suite contains **38 Python tests and 13 React tests**. Tests cover authenticated APIs, label/path validation, atomic claims, busy GPU queuing, multiple simulated GPUs, real subprocess completion/cancellation, dataset changes, restart state, artifact access the MLflow adapter contract, React authentication/submission/filtering/cancellation, log display, authenticated downloads, preview isolation and polling cleanup. No GPU is needed for these tests. **Real NVIDIA training and end-to-end Ultralytics/MLflow metrics require hardware acceptance testing**; adapter tests use fakes and are not evidence of model accuracy or throughput. See [the acceptance checklist](docs/acceptance.md).
 
 This is a single-host reference implementation, not a multi-tenant hosted service. Bind API and MLflow to loopback; for remote use, use an SSH tunnel or an authenticated TLS proxy. There are no user accounts, quotas, automatic retention, resume checkpoints, distributed locks, Kubernetes integration or automatic retries. Logs and MLflow artifacts can contain dataset paths; only trusted operators should have access. Keep token/state/datasets out of Git. Back up SQLite and outputs while the worker is stopped.
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vision-training-hub"
-version = "0.1.0"
+version = "0.2.0"
 description = "Single-host YOLOv8 training portal with GPU scheduling and MLflow tracking"
 requires-python = ">=3.11"
 license = {text = "AGPL-3.0-or-later"}
@@ -17,6 +17,6 @@ dev = ["pytest>=8,<10", "httpx>=0.27,<1"]
 [tool.setuptools.packages.find]
 include = ["hub*"]
 [tool.setuptools.package-data]
-hub = ["static/*"]
+hub = ["static/*", "static/assets/*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]

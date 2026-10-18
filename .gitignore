@@ -9,3 +9,6 @@ mlruns/
 mlartifacts/
 *.db*
 *.pt
+
+frontend/node_modules/
+frontend/coverage/

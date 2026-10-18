@@ -150,3 +150,57 @@ def test_artifact_access(client,config):
     assert client.get('/api/jobs/'+job['id']+'/artifacts/results.csv').status_code==200
     assert client.get('/api/jobs/'+job['id']+'/artifacts/secret.env').status_code==404
     assert client.get('/api/jobs/unknown/artifacts/results.csv').status_code==404
+
+def test_unconfigured_token_rejects_requests(config):
+    from dataclasses import replace
+    client=TestClient(create_app(replace(config,token='')))
+    assert client.get('/api/system').status_code==503
+
+def test_malformed_yaml_is_validation_error(client,config):
+    (config.datasets/'boxes/data.yaml').write_text('names: [broken')
+    assert client.post('/api/jobs',json={'dataset':'boxes'}).status_code==422
+
+def test_log_tail_is_bounded(client,config):
+    job=submit(client);root=config.state/'jobs'/job['id'];root.mkdir(parents=True)
+    (root/'train.log').write_text('a'*100000+'END')
+    text=client.get('/api/jobs/'+job['id']+'/logs').json()['text']
+    assert len(text)==64000 and text.endswith('END')
+
+def test_artifact_symlink_escape(client,config):
+    job=submit(client);root=config.state/'jobs'/job['id']/'training';root.mkdir(parents=True)
+    outside=config.state/'private.csv';outside.write_text('private')
+    (root/'results.csv').symlink_to(outside)
+    assert client.get('/api/jobs/'+job['id']+'/artifacts/results.csv').status_code==404
+
+def test_terminal_job_cancel_is_noop(client,config):
+    job=submit(client);store=Store(config.state);store.update(job['id'],status='completed')
+    client.post('/api/jobs/'+job['id']+'/cancel')
+    assert store.get(job['id'])['status']=='completed' and not store.get(job['id'])['cancel']
+
+def test_launch_failure_releases_reservation(client,config,monkeypatch):
+    job=submit(client)
+    def fail(*a,**k):raise OSError('Cannot launch runner')
+    monkeypatch.setattr(subprocess,'Popen',fail)
+    scheduler=Scheduler(config);scheduler.tick()
+    assert scheduler.store.get(job['id'])['status']=='failed'
+    assert not scheduler.children
+
+def test_job_persists_on_store_reopen(client,config):
+    job=submit(client)
+    assert Store(config.state).get(job['id'])['spec']['dataset']=='boxes'
+
+def test_gpu_lock_prevents_dispatch(client,config):
+    import fcntl
+    job=submit(client)
+    scheduler=Scheduler(config,inventory=lambda c:([{'uuid':'demo-0','available':True}],None))
+    with (config.state/'gpu-demo-0.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        scheduler.tick()
+        assert scheduler.store.get(job['id'])['status']=='queued'
+
+def test_api_serves_react_build(client):
+    response=client.get('/')
+    assert response.status_code==200 and '<div id="root"></div>' in response.text
+    import re
+    asset=re.search(r'src="([^"]+\.js)"',response.text).group(1)
+    assert client.get('/'+asset.removeprefix('./')).status_code==200
